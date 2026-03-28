@@ -1,12 +1,13 @@
 const { scaleAxisToServo } = require('../util/index.js');
 
-const ELBOW_RIGIDITY = 1.2;
-const SHOULDER_RIGIDITY = 1.4;
+const ELBOW_RIGIDITY = 1;
+const SHOULDER_RIGIDITY = 1;
 
-const SPEED = 0.1;
+const SPEED = 0.3;
 const DEAD_ZONE = 0.015;
 
 const { PI } = Math
+const TAU = PI * 2;
 
 const logNumber = (label, ...ns) => {
   ns = ns.map(n => `${ n < 0 ? ' ' : '' }${ n.toFixed(2) }`.padStart(7, ' '));
@@ -19,16 +20,19 @@ const distances = {
 };
 
 const posElbow = modDist => {
-  if (modDist < 0.5)
+  if (Math.abs(modDist) < PI / 4)
     return 1;
 
-  return 0;
+  return -0.2;
 };
 
 const posShldr = modDist => {
-  if (modDist < 0.5)
-    return -1;
-  return Math.min(1, -1 + modDist);
+  let base = -Math.sign(modDist);
+
+  if (Math.abs(modDist) < PI / 4)
+    return base;
+
+  return base + modDist / PI;
 };
 
 // Tank-style driving. Left stick controls left legs, right controls right.
@@ -54,8 +58,8 @@ function move(context) {
       const axis = axes[side];
       let otherSide = side === 'left' ? 'right' : 'left';
       if (!distances[side] && distances[otherSide])
-        distances[side] = distances[otherSide] + PI/2;
-      distances[side] += (axis.y - DEAD_ZONE) * SPEED;
+        distances[side] = distances[otherSide] + PI;
+      distances[side] -= (axis.y - DEAD_ZONE) * SPEED;
       const distance = distances[side];
       const legs = servos.legs[side] 
       let modDist;
@@ -63,16 +67,15 @@ function move(context) {
       legs.forEach(({ elbow, shoulder }, legIndex) => {
         // if (legIndex !== 0) return;
 
-        const timeShift = (legIndex % 2 === sideIndex % 2) * PI / 2;
         const sideSign = sideIndex ? 1 : -1;
+        const timeShift = sideSign * (legIndex-1) * PI;
 
         if (Math.abs(axis.y) >= DEAD_ZONE) {
           moved.add(elbow.index);
           moved.add(shoulder.index);
         }
 
-        modDist = Math.abs((distance + timeShift) % PI);
-        logNumber('ds', distance, modDist);
+        modDist = (distance + timeShift) % TAU;
         elbow.position.goal = scaleAxisToServo(
           posElbow(modDist) * sideSign / ELBOW_RIGIDITY,
           elbow

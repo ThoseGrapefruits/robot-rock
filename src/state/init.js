@@ -93,12 +93,12 @@ function initLegSide(start) {
     {
       start: start + 2,
       startLeg: start,
-      shoulder: { min: 150, neutral: 300, max: 450 }
+      shoulder: { min: 200, neutral: 300, max: 450 }
     },
     {
       start: start + 4,
       startLeg: start,
-      shoulder: { min: 100, neutral: 250, max: 400 }
+      shoulder: { min: 150, neutral: 250, max: 450 }
     }
   ].map(initLeg);
 }
@@ -124,7 +124,7 @@ function initServo(index, { max, min, neutral, position={} }={}) {
   return {
     index,
     pid: new PID({
-      kP: 0.1,
+      kP: 0.15,
       kI: 0.001,
       kD: 0.0001,
     }),

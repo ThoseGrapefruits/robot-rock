@@ -1,5 +1,9 @@
-function scaleAxisToServo(input, servo) {
+function scaleAxisToServo(input, servo, { walk=false }={}) {
   const { min, max, neutral } = servo.position;
+  if (walk && servo.position.minWalk)
+    min = servo.position.minWalk;
+  if (walk && servo.position.maxWalk)
+    min = servo.position.maxWalk;
 
   let result;
 
