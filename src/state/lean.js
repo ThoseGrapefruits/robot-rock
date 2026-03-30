@@ -6,16 +6,19 @@ function lean(context) {
   const {
     input: {
       axes: {
-        right: { x, y }
+        left: { x, y }
       },
       buttonsPressed
     },
     state
   } = context;
 
-  const shouldLean = buttonsPressed.has(4);
+  const shouldLean =
+    !state.enGarde &&
+    buttonsPressed.has(4);
 
   if (shouldLean) {
+    const modPressed = buttonsPressed.has(7);
     justLeaned = true;
     const { servos: { legs } } = state;
 
@@ -25,7 +28,7 @@ function lean(context) {
     }
 
     for (let { elbow, shoulder } of legs.right) {
-      elbow.position.goal    = scaleAxisToServo(-x, elbow);
+      elbow.position.goal    = scaleAxisToServo(modPressed ? x : -x, elbow);
       shoulder.position.goal = scaleAxisToServo(-y, shoulder);
     }
   } else if (justLeaned) {
@@ -40,7 +43,7 @@ function lean(context) {
     ...context,
     state: {
       ...state,
-      leaned: shouldLean
+      inLean: shouldLean
     }
   };
 }

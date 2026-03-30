@@ -115,6 +115,11 @@ class RRControlElement extends LitElement {
       input: {
         buttonsPressed: buttons.flatMap((button, index) =>
           buttonPressed(button) ? [ index ] : []),
+        buttonsValues: buttons.reduce((acc, button, index) => {
+          if (button.value)
+            acc[index] = button.value;
+          return acc;
+        }, {}),
         axes: {
           left: {
             x: axes[0],
@@ -202,12 +207,23 @@ function renderGamepad({ axes, buttons, id, index }) {
       <dt>Index
       <dd>${ index }
     </dl>
+
     <h4>Pressed buttons</h4>
     <ul>
       ${ buttons.flatMap((button, index) =>
         buttonPressed(button) ? [ html`<li>${ index }</li>` ] : [])
       }
     </ul>
+
+    <h4>Pressed triggers</h4>
+    <dl>
+      ${ buttons.flatMap((button, index) =>
+        (button.value && button.value !== 1) ? [ html`
+          <dt>${ index }</dt>
+          <dd>${ button.value.toFixed(2) }</dd>
+        ` ] : [])
+      }
+    </dl>
   `;
 }
 

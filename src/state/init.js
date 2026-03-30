@@ -76,31 +76,73 @@ function initRobot({
             yield * leg.all();
           }
         },
-        left: initLegSide(0),
-        right: initLegSide(6)
+        left: [ {
+          // left back
+          start: 0 + 4,
+          startLeg: 0,
+          shoulder: {
+            minUnsafe: 0,
+            min: 150,
+            neutral: 250,
+            max: 450,
+            maxUnsafe: 600
+          }
+        }, {
+          // left middle
+          start: 0 + 2,
+          startLeg: 0,
+          shoulder: {
+            min: 150,
+            neutral: 300,
+            max: 450
+          }
+        }, {
+          // left front
+          start: 0,
+          startLeg: 0,
+          shoulder: {
+            minUnsafe: 0,
+            min: 200,
+            neutral: 350,
+            max: 450,
+            maxUnsafe: 600
+          }
+        } ].map(initLeg),
+        right: [ {
+          // right back
+          start: 6,
+          startLeg: 6,
+          shoulder: {
+            minUnsafe: 0,
+            min: 200,
+            neutral: 350,
+            max: 450,
+            maxUnsafe: 600
+          }
+        }, {
+          // right middle
+          start: 6 + 2,
+          startLeg: 6,
+          shoulder: {
+            min: 250,
+            neutral: 300,
+            max: 550
+          }
+        }, {
+          // right front
+          start: 6 + 4,
+          startLeg: 6,
+          shoulder: {
+            minUnsafe: 0,
+            min: 150,
+            neutral: 250,
+            max: 450,
+            maxUnsafe: 600
+          }
+        } ].map(initLeg)
       }
     },
   };
-}
-
-function initLegSide(start) {
-  return [
-    {
-      start: start,
-      startLeg: start,
-      shoulder: { min: 200, neutral: 350, max: 500 }
-    },
-    {
-      start: start + 2,
-      startLeg: start,
-      shoulder: { min: 200, neutral: 300, max: 450 }
-    },
-    {
-      start: start + 4,
-      startLeg: start,
-      shoulder: { min: 150, neutral: 250, max: 450 }
-    }
-  ].map(initLeg);
 }
 
 function initLeg({ shoulder, start, startLeg }) {

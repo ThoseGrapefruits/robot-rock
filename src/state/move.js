@@ -19,7 +19,7 @@ const distances = {
   right: 0
 };
 
-const posElbow = modDist => {
+const posElbow = (modDist) => {
   if (Math.abs(modDist) < PI / 4)
     return 1;
 
@@ -47,7 +47,10 @@ function move(context) {
 
   moved.clear();
 
-  const shouldMove = !state.leaned &&
+  const shouldMove =
+    !state.enGarde &&
+    !state.inLean &&
+    !state.inStand &&
     [ axes.left.magnitude, axes.right.magnitude ]
       .some(magnitude => DEAD_ZONE <= magnitude);
 
@@ -59,7 +62,13 @@ function move(context) {
       let otherSide = side === 'left' ? 'right' : 'left';
       if (!distances[side] && distances[otherSide])
         distances[side] = distances[otherSide] + PI;
-      distances[side] -= (axis.y - DEAD_ZONE) * SPEED;
+      if (Math.sign(axis.y) === Math.sign(distances[side]))
+        distances[side] = 0;
+      let trueDist = Math.abs(axis.y - DEAD_ZONE);
+      if (trueDist < 0)
+        distances[side] = 0;
+      else
+        distances[side] -= Math.sign(axis.y) * SPEED * trueDist;
       const distance = distances[side];
       const legs = servos.legs[side] 
       let modDist;
@@ -68,7 +77,7 @@ function move(context) {
         // if (legIndex !== 0) return;
 
         const sideSign = sideIndex ? 1 : -1;
-        const timeShift = sideSign * (legIndex-1) * PI;
+        const timeShift = sideSign * -(legIndex-1) * PI;
 
         if (Math.abs(axis.y) >= DEAD_ZONE) {
           moved.add(elbow.index);
@@ -95,7 +104,8 @@ function move(context) {
     ...context,
     state: {
       ...state,
-      moved
+      moved,
+      inMove: shouldMove
     }
   };
 }

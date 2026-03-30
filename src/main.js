@@ -1,4 +1,4 @@
-const { normalizeInput, init, lean, move, stand } = require('./state/index.js');
+const { normalizeInput, init, garde, lean, move, stand } = require('./state/index.js');
 const { startServer } = require('./web.js');
 const { addInputListener, handleRawInput } = require('./input.js');
 const settleServos = require('./state/settle-servos.js');
@@ -59,7 +59,7 @@ void async function main() {
       await new Promise(resolve => setTimeout(resolve, 100));
       await server.close();
       await new Promise(resolve => setTimeout(resolve, 100));
-      // This should be the right thing to do but it seems to kill the PWM sometimes
+      // Should be the right thing to do but it kills the PWM sometimes
       if (state) await state.pwm.stop();
       console.log('\nRobot cleanly stopped.');
       resolve();
@@ -151,6 +151,7 @@ async function setStartupSettlerFilter(state) {
 function step(context) {
   context = assert(normalizeInput(context));
   context = assert(lean(context));
+  context = assert(garde(context));
   context = assert(move(context));
   context = assert(stand(context));
   return context.state;
